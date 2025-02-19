@@ -1,6 +1,8 @@
-import { Button, Input } from 'antd';
+import { Button, Input, Form, Typography, List } from 'antd';
 import 'antd/dist/reset.css';
 import { useState } from 'react';
+
+const { Title, Text } = Typography;
 
 interface Step {
   low?: number;
@@ -24,12 +26,9 @@ function App() {
       .sort((a, b) => a - b);
   };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const arr = parseInputList(inputList.join(', '));
-    const x = parseInt(target);
-    // console.log(arr, 'arr');
-    // console.log(x, 'x');
+  const handleSearch = (values: { inputList: string; target: string }) => {
+    const arr = parseInputList(values.inputList);
+    const x = parseInt(values.target);
 
     if (isNaN(x)) {
       alert('لطفاً مقدار جستجو را به صورت عدد وارد کنید.');
@@ -78,42 +77,58 @@ function App() {
   };
 
   return (
-    <form onSubmit={(e) => handleSearch(e)}>
-      <div style={{ padding: '20px' }} dir="rtl">
-        <h1>نمایش الگوریتم جستجوی دودویی</h1>
-        <div style={{ marginBottom: '10px' }}>
-          <label>لیست اعداد (با کاما جدا شوند): </label>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}
+    >
+      <Form
+        onFinish={handleSearch}
+        layout="vertical"
+        style={{ padding: '20px', maxWidth: '600px', width: '100%' }}
+        dir="rtl"
+      >
+        <Title level={1}>نمایش الگوریتم جستجوی دودویی</Title>
+        <Form.Item
+          label="لیست اعداد (با کاما جدا شوند):"
+          name="inputList"
+          initialValue={inputList.join(', ')}
+        >
           <Input
-            type="text"
-            defaultValue={inputList.join(', ')}
+            placeholder="مثلاً: 1, 3, 5, 7, 9"
             onBlur={(e) =>
               setInputList(e.target.value.split(',').map((num) => num.trim()))
             }
-            placeholder="مثلاً: 1, 3, 5, 7, 9"
-            style={{ width: '300px', marginLeft: '10px' }}
           />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>عدد جستجو (x): </label>
+        </Form.Item>
+        <Form.Item label="عدد جستجو (x):" name="target" initialValue={target}>
           <Input
-            type="text"
-            defaultValue={target}
-            onBlur={(e) => setTarget(e.target.value)}
             placeholder="مثلاً: 5"
-            style={{ width: '100px', marginLeft: '10px' }}
+            onBlur={(e) => setTarget(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            جستجو
+          </Button>
+        </Form.Item>
+        <div style={{ marginTop: '20px' }}>
+          <Title level={2}>مراحل اجرا:</Title>
+          <List
+            bordered
+            dataSource={steps}
+            renderItem={(step) => (
+              <List.Item>
+                <Text>{step.message}</Text>
+              </List.Item>
+            )}
           />
         </div>
-        <Button htmlType="submit">جستجو</Button>
-        <div style={{ marginTop: '20px' }}>
-          <h2>مراحل اجرا:</h2>
-          <ul>
-            {steps.map((step, index) => (
-              <li key={index}>{step.message}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </form>
+      </Form>
+    </div>
   );
 }
 
